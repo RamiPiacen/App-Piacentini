@@ -37,6 +37,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      hola coder!
       <View style={styles.flex}>
         <TextInput
           value={item}
