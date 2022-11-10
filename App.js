@@ -1,89 +1,82 @@
-import { StatusBar } from "expo-status-bar";
-import {
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  FlatList,
-} from "react-native";
-import { useState } from "react";
-
+import { StyleSheet, Button, Text, TextInput, View, FlatList, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { useState } from 'react';
+import Modal from './components/Modal';
 export default function App() {
-  const [item, setItem] = useState("");
-  const [itemlist, setItemlist] = useState([]);
+  const [textItem, setTextItem] = useState("")
+  const [list, setList] = useState([])
+  const [modalVisible, setModalVisible] = useState(false)
+  const [itemSelected, setitemSelected] = useState({})
 
-  const cambiarTextoImput = (t) => {
-    setItem(t);
-  };
+  const onHandleChange = (t) => setTextItem(t)
+  const addItem = () => {
+    setList(currenState => [
+      ...currenState,
+      { id: Math.random().toString(), value: textItem }
+    ])
+    setTextItem("")
+  }
 
-  const presionarBoton = () => {
-    setItemlist((currenItems) => [
-      ...currenItems,
-      { id: Math.random().toString(), value: item },
-    ]);
-    console.log(item)
-    setItem("");
-  };
-  console.log(item);
-
-  const renderItem = ({item}) => (
-    <View>
-      <View style={styles.items}>
-        <Text>{item.value}</Text>
-      </View>
-    </View>
-  );
-
+  const selectedItem = (id) => {
+    setitemSelected(list.filter((item) => item.id === id)[0])
+    setModalVisible(true)
+  }
+  const deleteItem = () => {
+    setList((currenState) => currenState.filter(item => item.id !== itemSelected.id))
+    setitemSelected({})
+    setModalVisible(false)
+  }
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => selectedItem(item.id)}>
+      <Text>{item.value}</Text>
+    </TouchableOpacity>
+  )
   return (
     <View style={styles.container}>
-      hola coder!
-      <View style={styles.flex}>
+      <Text>Lista de shopping</Text>
+      <View style={styles.addItem}>
         <TextInput
-          value={item}
-          placeholder="agregar al carro"
-          style={styles.Imput}
-          placeholderTextColor={"gray"}
-          onChangeText={cambiarTextoImput}
+          value={textItem}
+          style={styles.input}
+          placeholder="Agregar item a la lista"
+          onChangeText={onHandleChange}
         />
-        <Button
-          onPress={presionarBoton}
-          style={styles.boton}
-          color="black"
-          title="agregar"
+        <TouchableOpacity onPress={addItem}>
+          <Text> Add </Text>
+        </TouchableOpacity>
+      </View>
+      <View>
+        <FlatList
+          data={list}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
         />
       </View>
-      <FlatList
-        data={itemlist}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
+      <Modal isVisible={modalVisible} actionDeleteItem={deleteItem} />
+    </View >
   );
 }
-
 const styles = StyleSheet.create({
   container: {
-    padding: 50,
-    margin: 50,
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 30,
+    marginTop: 50
   },
-  flex: {
-    flexDirection: "row",
-    justifyContent: "center",
-    width: 150,
-  },
-  Imput: {
-    borderButtomColor: "blue",
-    borderBottomWidth: 1,
+  input: {
     width: 200,
+    borderBottomColor: "black",
+    borderBottomWidth: 1
   },
-  textos: {
+  addItem: {
     marginTop: 50,
+    flexDirection: "row",
+    justifyContent: "space- between",
+    alignItems: "center",
   },
-  text: {
-    color: "red",
-    borderWidth: 1,
-    margin: 10,
-    width: 200,
+  items: {
+    marginTop: 50,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center"
   },
-});
+})
